@@ -199,8 +199,9 @@
         if (isKraken) {
             document.getElementById('config-controls').classList.add('hidden');
             
-            const storedUrl = localStorage.getItem('youtubeVideoUrl') || buildEmbedUrl('F8kQ5TkHFus');
-            videoFrame.src = storedUrl;
+            // Load cached URL on page load
+            const cachedUrl = localStorage.getItem('youtubeVideoUrl') || buildEmbedUrl('F8kQ5TkHFus');
+            videoFrame.src = cachedUrl;
 
             videoFrame.style.transformOrigin = localStorage.getItem('bootyToggle') === 'true' ? 'center 68%' : 'center';
             videoFrame.className = localStorage.getItem('orientationToggle') === 'true' ? 'video portrait' : 'video landscape';
