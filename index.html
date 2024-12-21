@@ -1,48 +1,110 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-	<style>
-		body {
-			margin: 0;
-		}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kraken Z73 TikTok Compilation Player</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
 
-		.container {
-			display: flex;
-			width: 100vw;
-			height: 100vh;
-			align-items: center;
-			justify-content: center;
-			transform-origin: 0 0;
-		}
+        .container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+            transform-origin: 0 0;
+            flex-direction: column;
+        }
 
-		.video {
-			width: 100vw;
-			height: 100vh;
-			transform: scale(1.8);
-			transform-origin: center;
-		}
-	</style>
+        .video {
+            width: 100vw;
+            height: 100vh;
+            transform: scale(1.8);
+            transform-origin: center;
+        }
+
+        .url-input {
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .url-input input {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .url-input button {
+            padding: 10px 20px;
+            background-color: #0078D4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .url-input button:hover {
+            background-color: #005ea2;
+        }
+    </style>
 </head>
 
 <body>
-	<div class="container">
-		<iframe id="video" class="video" width="640" height="640" src="" allow="autoplay;mute;fullscreen" frameBorder="0"
-			allowfullscreen></iframe>
-	</div>
+    <div id="config" class="container">
+        <h2>Enter the URL of the YouTube TikTok Compilation:</h2>
+        <div class="url-input">
+            <input type="text" id="youtube-url" placeholder="Enter YouTube Playlist URL">
+            <button id="apply-btn">Apply</button>
+        </div>
+    </div>
+
+    <div id="kraken" class="container" style="display: none;">
+        <iframe id="video" class="video" src="" allow="autoplay; mute; fullscreen" frameBorder="0" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        const applyButton = document.getElementById('apply-btn');
+        const youtubeInput = document.getElementById('youtube-url');
+        const videoFrame = document.getElementById('video');
+        const configSection = document.getElementById('config');
+        const krakenSection = document.getElementById('kraken');
+
+        applyButton.addEventListener('click', () => {
+            const url = youtubeInput.value.trim();
+            if (url) {
+                const videoId = extractVideoId(url);
+                if (videoId) {
+                    const youtubeEmbedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&playlist=${videoId}&loop=1&controls=0&mute=1`;
+                    videoFrame.setAttribute('src', youtubeEmbedUrl);
+                    configSection.style.display = 'none';
+                    krakenSection.style.display = 'flex';
+                } else {
+                    alert('Invalid YouTube URL. Please enter a valid playlist or video URL.');
+                }
+            } else {
+                alert('Please enter a YouTube URL.');
+            }
+        });
+
+        function extractVideoId(url) {
+            const urlParams = new URLSearchParams(new URL(url).search);
+            return urlParams.get('v') || null;
+        }
+
+        // Kraken Browser Specific Logic
+        const searchParams = new URLSearchParams(window.location.search);
+        if (searchParams.get('kraken') === '1') {
+            configSection.style.display = 'none';
+            krakenSection.style.display = 'flex';
+        }
+    </script>
 </body>
-
-<script type="text/javascript">
-	const youtubeEmbedRoot = 'https://www.youtube.com/embed/'
-	const params = (new URL(window.location.href)).searchParams
-	const viewstate = params.get('viewstate') || 640
-
-	const video = window.document.getElementById('video')
-	video.setAttribute('width', viewstate)
-	video.setAttribute('height', viewstate)
-
-	const videoId = params.get('video') || '1km9XQSc0Yw'
-	const youtubeUrl = `${youtubeEmbedRoot}${videoId}?autoplay=1&playlist=${videoId}&loop=1&controls=0&mute=1`
-	video.setAttribute('src', youtubeUrl)
-</script>
-
 </html>
