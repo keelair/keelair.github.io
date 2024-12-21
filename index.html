@@ -178,21 +178,17 @@
         const bootyToggle = document.getElementById('booty-toggle');
 
         if (isKraken) {
-            // 🟣 Kraken Browser: Hide controls, show video only
             document.getElementById('config-controls').classList.add('hidden');
 
-            // Load video URL from localStorage if available
             const storedUrl = localStorage.getItem('youtubeVideoUrl') || buildEmbedUrl('F8kQ5TkHFus');
             videoFrame.src = storedUrl;
 
-            // Listen for updates from Configuration Browser
             window.addEventListener('storage', (event) => {
                 if (event.key === 'youtubeVideoUrl') {
                     videoFrame.src = event.newValue;
                 }
             });
         } else {
-            // 🟢 Configuration Browser: Show controls below the video
             const applyButton = document.getElementById('apply-btn');
             const videoUrlInput = document.getElementById('video-url');
 
@@ -228,10 +224,11 @@
         }
 
         function buildEmbedUrl(videoId, playlistId) {
+            let embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&mute=1`;
             if (playlistId) {
-                return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&mute=1&playlist=${playlistId}`;
+                embedUrl += `&list=${playlistId}`;
             }
-            return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&mute=1`;
+            return embedUrl;
         }
     </script>
 </body>
