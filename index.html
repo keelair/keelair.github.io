@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fullscreen YouTube TikTok Compilation</title>
+    <title>Kraken Video Player</title>
     <style>
         body {
             margin: 0;
@@ -155,7 +155,7 @@
     <div class="container">
         <iframe 
             id="video" 
-            class="video portrait"
+            class="video"
             src=""
             allow="autoplay; fullscreen"
             frameBorder="0"
@@ -165,7 +165,7 @@
 
     <div class="config-controls" id="config-controls">
         <h4>Built by Keelair</h4>
-        <h3>Enter YouTube Video URL:</h3>
+        <h3>Enter Video URL:</h3>
         <input type="text" id="video-url" placeholder="e.g., https://www.youtube.com/watch?v=XXXXXX">
         <br>
         <button id="apply-btn">Submit</button>
@@ -188,48 +188,48 @@
     </div>
 
     <script>
-        const searchParams = new URLSearchParams(window.location.search);
         const videoFrame = document.getElementById('video');
-        const isKraken = searchParams.get('kraken') === '1';
+        const applyButton = document.getElementById('apply-btn');
+        const videoUrlInput = document.getElementById('video-url');
         const bootyToggle = document.getElementById('booty-toggle');
         const orientationToggle = document.getElementById('orientation-toggle');
+        const isKraken = new URLSearchParams(window.location.search).get('kraken') === '1';
 
         // 🟣 Kraken Browser Mode
         if (isKraken) {
             document.getElementById('config-controls').classList.add('hidden');
-
+            
             const storedUrl = localStorage.getItem('youtubeVideoUrl') || buildEmbedUrl('F8kQ5TkHFus');
             videoFrame.src = storedUrl;
 
-            const storedBooty = localStorage.getItem('bootyToggle') === 'true';
-            videoFrame.style.transformOrigin = storedBooty ? 'center 68%' : 'center';
-
-            const storedOrientation = localStorage.getItem('orientationToggle') === 'true';
-            videoFrame.className = storedOrientation ? 'video portrait' : 'video landscape';
-        } 
-        // 🟢 Configuration Browser Mode
-        else {
-            bootyToggle.checked = localStorage.getItem('bootyToggle') === 'true';
-            orientationToggle.checked = localStorage.getItem('orientationToggle') === 'true';
-
-            videoFrame.style.transformOrigin = bootyToggle.checked ? 'center 68%' : 'center';
-            videoFrame.className = orientationToggle.checked ? 'video portrait' : 'video landscape';
+            videoFrame.style.transformOrigin = localStorage.getItem('bootyToggle') === 'true' ? 'center 68%' : 'center';
+            videoFrame.className = localStorage.getItem('orientationToggle') === 'true' ? 'video portrait' : 'video landscape';
+        } else {
+            applyButton.addEventListener('click', () => {
+                const url = videoUrlInput.value.trim();
+                videoFrame.src = buildEmbedUrl(url);
+                localStorage.setItem('youtubeVideoUrl', videoFrame.src);
+            });
 
             bootyToggle.addEventListener('change', () => {
-                const isChecked = bootyToggle.checked;
-                localStorage.setItem('bootyToggle', isChecked);
-                videoFrame.style.transformOrigin = isChecked ? 'center 68%' : 'center';
+                videoFrame.style.transformOrigin = bootyToggle.checked ? 'center 68%' : 'center';
+                localStorage.setItem('bootyToggle', bootyToggle.checked);
             });
 
             orientationToggle.addEventListener('change', () => {
-                const isChecked = orientationToggle.checked;
-                localStorage.setItem('orientationToggle', isChecked);
-                videoFrame.className = isChecked ? 'video portrait' : 'video landscape';
+                videoFrame.className = orientationToggle.checked ? 'video portrait' : 'video landscape';
+                localStorage.setItem('orientationToggle', orientationToggle.checked);
             });
         }
 
-        function buildEmbedUrl(videoId) {
-            return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&mute=1`;
+        function buildEmbedUrl(url) {
+            try {
+                const urlParams = new URLSearchParams(new URL(url).search);
+                const videoId = urlParams.get('v') || url;
+                return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&mute=1`;
+            } catch {
+                return url;
+            }
         }
     </script>
 </body>
