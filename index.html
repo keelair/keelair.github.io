@@ -149,7 +149,7 @@
         <iframe 
             id="video" 
             class="video" 
-            src="https://www.youtube.com/embed/F8kQ5TkHFus?autoplay=1&playlist=F8kQ5TkHFus&loop=1&controls=0&mute=1"
+            src=""
             allow="autoplay; fullscreen"
             frameBorder="0"
             allowfullscreen>
@@ -182,22 +182,13 @@
             document.getElementById('config-controls').classList.add('hidden');
 
             // Load video URL from localStorage if available
-            const storedUrl = localStorage.getItem('youtubeVideoUrl') || 'https://www.youtube.com/embed/F8kQ5TkHFus?autoplay=1&playlist=F8kQ5TkHFus&loop=1&controls=0&mute=1';
+            const storedUrl = localStorage.getItem('youtubeVideoUrl') || buildEmbedUrl('F8kQ5TkHFus');
             videoFrame.src = storedUrl;
-
-            // Load booty toggle preference
-            const storedBooty = localStorage.getItem('bootyToggle');
-            if (storedBooty === 'true') {
-                videoFrame.style.transformOrigin = 'center 68%';
-            }
 
             // Listen for updates from Configuration Browser
             window.addEventListener('storage', (event) => {
                 if (event.key === 'youtubeVideoUrl') {
                     videoFrame.src = event.newValue;
-                }
-                if (event.key === 'bootyToggle') {
-                    videoFrame.style.transformOrigin = event.newValue === 'true' ? 'center 68%' : 'center';
                 }
             });
         } else {
@@ -216,14 +207,31 @@
             applyButton.addEventListener('click', () => {
                 const url = videoUrlInput.value.trim();
                 if (url) {
-                    const videoId = extractVideoId(url);
-                    if (videoId) {
-                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&playlist=${videoId}&loop=1&controls=0&mute=1`;
-                        localStorage.setItem('youtubeVideoUrl', embedUrl);
-                        videoFrame.src = embedUrl;
-                    }
+                    const { videoId, playlistId } = extractVideoAndPlaylistId(url);
+                    const embedUrl = buildEmbedUrl(videoId, playlistId);
+                    localStorage.setItem('youtubeVideoUrl', embedUrl);
+                    videoFrame.src = embedUrl;
                 }
             });
+        }
+
+        function extractVideoAndPlaylistId(url) {
+            try {
+                const urlParams = new URLSearchParams(new URL(url).search);
+                return {
+                    videoId: urlParams.get('v') || null,
+                    playlistId: urlParams.get('list') || null
+                };
+            } catch {
+                return { videoId: null, playlistId: null };
+            }
+        }
+
+        function buildEmbedUrl(videoId, playlistId) {
+            if (playlistId) {
+                return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&mute=1&playlist=${playlistId}`;
+            }
+            return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&mute=1`;
         }
     </script>
 </body>
