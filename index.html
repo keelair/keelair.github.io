@@ -35,8 +35,9 @@
             width: 320px;
             height: 320px;
             transform: scale(3.17);
-            transform-origin: center 68%;
+            transform-origin: center;
             border: none;
+            transition: transform-origin 0.3s ease;
         }
 
         /* Configuration Controls Below Video */
@@ -79,6 +80,20 @@
             background-color: #005ea2;
         }
 
+        .config-controls label {
+            color: white;
+            font-family: Arial, sans-serif;
+            margin-top: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .config-controls input[type="checkbox"] {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
         .hidden {
             display: none;
         }
@@ -103,12 +118,18 @@
         <input type="text" id="video-url" placeholder="e.g., https://www.youtube.com/watch?v=XXXXXX">
         <br>
         <button id="apply-btn">Submit</button>
+        <br>
+        <label>
+            <input type="checkbox" id="booty-toggle">
+            Looking at booty?
+        </label>
     </div>
 
     <script>
         const searchParams = new URLSearchParams(window.location.search);
         const videoFrame = document.getElementById('video');
         const isKraken = searchParams.get('kraken') === '1';
+        const bootyToggle = document.getElementById('booty-toggle');
 
         if (isKraken) {
             // 🟣 Kraken Browser: Hide controls, show video only
@@ -118,16 +139,34 @@
             const storedUrl = localStorage.getItem('youtubeVideoUrl') || 'https://www.youtube.com/embed/F8kQ5TkHFus?autoplay=1&playlist=F8kQ5TkHFus&loop=1&controls=0&mute=1';
             videoFrame.src = storedUrl;
 
+            // Load booty toggle preference
+            const storedBooty = localStorage.getItem('bootyToggle');
+            if (storedBooty === 'true') {
+                videoFrame.style.transformOrigin = 'center 68%';
+            }
+
             // Listen for updates from Configuration Browser
             window.addEventListener('storage', (event) => {
                 if (event.key === 'youtubeVideoUrl') {
                     videoFrame.src = event.newValue;
+                }
+                if (event.key === 'bootyToggle') {
+                    videoFrame.style.transformOrigin = event.newValue === 'true' ? 'center 68%' : 'center';
                 }
             });
         } else {
             // 🟢 Configuration Browser: Show controls below the video
             const applyButton = document.getElementById('apply-btn');
             const videoUrlInput = document.getElementById('video-url');
+
+            // Initialize checkbox from localStorage
+            bootyToggle.checked = localStorage.getItem('bootyToggle') === 'true';
+
+            bootyToggle.addEventListener('change', () => {
+                const isChecked = bootyToggle.checked;
+                localStorage.setItem('bootyToggle', isChecked);
+                videoFrame.style.transformOrigin = isChecked ? 'center 68%' : 'center';
+            });
 
             applyButton.addEventListener('click', () => {
                 const url = videoUrlInput.value.trim();
