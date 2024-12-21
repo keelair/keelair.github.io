@@ -26,7 +26,6 @@
             justify-content: center;
             background-color: black;
             margin: 0 auto;
-            filter: contrast(1.4) saturate(1.2) brightness(1.1); /* Enhanced contrast and color */
         }
 
         .video {
@@ -48,11 +47,6 @@
             color: white;
             font-family: Arial, sans-serif;
             margin-bottom: 10px;
-        }
-
-        .config-controls h4 {
-            color: white;
-            font-family: Arial, sans-serif;
         }
 
         .config-controls input {
@@ -88,7 +82,7 @@
         <iframe 
             id="video" 
             class="video" 
-            src=""
+            src="https://www.youtube.com/embed/F8kQ5TkHFus?autoplay=1&playlist=F8kQ5TkHFus&loop=1&controls=0&mute=1"
             allow="autoplay; fullscreen"
             frameBorder="0"
             allowfullscreen>
@@ -96,9 +90,9 @@
     </div>
 
     <div class="config-controls" id="config-controls">
-        <h4>Developed by Keelair</h4>
+        <h4>Built by Keelair</h4>
         <h3>Enter YouTube Video URL:</h3>
-        <input type="text" id="video-url" placeholder="e.g., https://www.youtube.com/watch?v=XXXXXX&list=YYYYY">
+        <input type="text" id="video-url" placeholder="e.g., https://www.youtube.com/watch?v=XXXXXX">
         <br>
         <button id="apply-btn">Submit</button>
     </div>
@@ -113,7 +107,7 @@
             document.getElementById('config-controls').classList.add('hidden');
 
             // Load video URL from localStorage if available
-            const storedUrl = localStorage.getItem('youtubeVideoUrl') || buildPlaylistEmbedUrl('NVgJehy1xV4', 'PLxwr0G4An8bFAeUDpq0SPAhM6QZbvGOX4');
+            const storedUrl = localStorage.getItem('youtubeVideoUrl') || 'https://www.youtube.com/embed/F8kQ5TkHFus?autoplay=1&playlist=F8kQ5TkHFus&loop=1&controls=0&mute=1';
             videoFrame.src = storedUrl;
 
             // Listen for updates from Configuration Browser
@@ -130,14 +124,14 @@
             applyButton.addEventListener('click', () => {
                 const url = videoUrlInput.value.trim();
                 if (url) {
-                    const { videoId, playlistId } = extractVideoAndPlaylistId(url);
+                    const videoId = extractVideoId(url);
                     if (videoId) {
-                        const embedUrl = buildPlaylistEmbedUrl(videoId, playlistId);
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&playlist=${videoId}&loop=1&controls=0&mute=1`;
                         localStorage.setItem('youtubeVideoUrl', embedUrl);
                         videoFrame.src = embedUrl;
                         alert('Video URL updated! Kraken screen will refresh shortly.');
                     } else {
-                        alert('Invalid YouTube URL. Please enter a valid video or playlist link.');
+                        alert('Invalid YouTube URL. Please enter a valid video link.');
                     }
                 } else {
                     alert('Please enter a YouTube URL.');
@@ -145,23 +139,13 @@
             });
         }
 
-        function extractVideoAndPlaylistId(url) {
+        function extractVideoId(url) {
             try {
                 const urlParams = new URLSearchParams(new URL(url).search);
-                const videoId = urlParams.get('v') || null;
-                const playlistId = urlParams.get('list') || null;
-                return { videoId, playlistId };
+                return urlParams.get('v') || null;
             } catch (e) {
-                return { videoId: null, playlistId: null };
+                return null;
             }
-        }
-
-        function buildPlaylistEmbedUrl(videoId, playlistId) {
-            let embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&mute=1&loop=1`;
-            if (playlistId) {
-                embedUrl += `&playlist=${playlistId}`;
-            }
-            return embedUrl;
         }
     </script>
 </body>
