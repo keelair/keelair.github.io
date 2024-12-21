@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kraken Z73 TikTok Compilation Player</title>
+    <title>Keelair's YouTube TikTok Compilation</title>
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
+            overflow: hidden;
         }
 
         .container {
@@ -16,114 +16,37 @@
             height: 100vh;
             align-items: center;
             justify-content: center;
-            transform-origin: 0 0;
-            flex-direction: column;
+            transform-origin: center;
         }
 
         .video {
             width: 100vw;
             height: 100vh;
-            transform: scale(1.8);
+            transform: scale(1.8); /* Zoom in for fullscreen circular fit */
             transform-origin: center;
-        }
-
-        .url-input {
-            margin: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .url-input input {
-            width: 80%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .url-input button {
-            padding: 10px 20px;
-            background-color: #0078D4;
-            color: white;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .url-input button:hover {
-            background-color: #005ea2;
         }
     </style>
 </head>
 
 <body>
-    <div id="config" class="container">
-        <h2>Enter the URL of the YouTube TikTok Compilation:</h2>
-        <div class="url-input">
-            <input type="text" id="youtube-url" placeholder="Enter YouTube Playlist URL">
-            <button id="apply-btn">Apply</button>
-        </div>
-    </div>
-
-    <div id="kraken" class="container" style="display: none;">
-        <iframe id="video" class="video" src="" allow="autoplay; mute; fullscreen" frameBorder="0" allowfullscreen></iframe>
+    <div class="container">
+        <iframe 
+            id="video" 
+            class="video" 
+            src="https://www.youtube.com/embed/F8kQ5TkHFus?autoplay=1&playlist=F8kQ5TkHFus&loop=1&controls=0&mute=1"
+            allow="autoplay; fullscreen"
+            frameBorder="0"
+            allowfullscreen>
+        </iframe>
     </div>
 
     <script>
-        const applyButton = document.getElementById('apply-btn');
-        const youtubeInput = document.getElementById('youtube-url');
-        const videoFrame = document.getElementById('video');
-        const configSection = document.getElementById('config');
-        const krakenSection = document.getElementById('kraken');
-
         const searchParams = new URLSearchParams(window.location.search);
         const isKraken = searchParams.get('kraken') === '1';
 
         if (isKraken) {
-            // 🟣 Kraken Browser Logic
-            configSection.style.display = 'none';
-            krakenSection.style.display = 'flex';
-
-            window.addEventListener('storage', (event) => {
-                if (event.key === 'youtubeUrl') {
-                    const videoId = extractVideoId(event.newValue);
-                    if (videoId) {
-                        const youtubeEmbedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&playlist=${videoId}&loop=1&controls=0&mute=1`;
-                        videoFrame.setAttribute('src', youtubeEmbedUrl);
-                    }
-                }
-            });
-
-            // Initialize with existing URL if available
-            const initialUrl = localStorage.getItem('youtubeUrl');
-            if (initialUrl) {
-                const videoId = extractVideoId(initialUrl);
-                if (videoId) {
-                    const youtubeEmbedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&playlist=${videoId}&loop=1&controls=0&mute=1`;
-                    videoFrame.setAttribute('src', youtubeEmbedUrl);
-                }
-            }
-        } else {
-            // 🟢 Configuration Browser Logic
-            applyButton.addEventListener('click', () => {
-                const url = youtubeInput.value.trim();
-                if (url) {
-                    localStorage.setItem('youtubeUrl', url);
-                    alert('URL saved. The Kraken screen will update shortly.');
-                } else {
-                    alert('Please enter a valid YouTube URL.');
-                }
-            });
-        }
-
-        function extractVideoId(url) {
-            try {
-                const urlParams = new URLSearchParams(new URL(url).search);
-                return urlParams.get('v') || null;
-            } catch (e) {
-                return null;
-            }
+            document.body.style.backgroundColor = 'black';
         }
     </script>
 </body>
