@@ -32,10 +32,17 @@
         .video {
             width: 320px;
             height: 320px;
-            transform: scale(3.17);
             transform-origin: center;
             border: none;
-            transition: transform-origin 0.3s ease;
+            transition: transform 0.3s ease, transform-origin 0.3s ease;
+        }
+
+        .portrait {
+            transform: scale(3.17);
+        }
+
+        .landscape {
+            transform: none;
         }
 
         /* Configuration Controls Below Video */
@@ -148,7 +155,7 @@
     <div class="container">
         <iframe 
             id="video" 
-            class="video" 
+            class="video portrait"
             src=""
             allow="autoplay; fullscreen"
             frameBorder="0"
@@ -162,10 +169,19 @@
         <input type="text" id="video-url" placeholder="e.g., https://www.youtube.com/watch?v=XXXXXX">
         <br>
         <button id="apply-btn">Submit</button>
+        
         <div class="toggle-container">
             <span class="toggle-label">Looking at booty?</span>
             <label class="toggle-switch">
                 <input type="checkbox" id="booty-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="toggle-container">
+            <span class="toggle-label">Portrait Mode?</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="orientation-toggle" checked>
                 <span class="slider"></span>
             </label>
         </div>
@@ -176,6 +192,7 @@
         const videoFrame = document.getElementById('video');
         const isKraken = searchParams.get('kraken') === '1';
         const bootyToggle = document.getElementById('booty-toggle');
+        const orientationToggle = document.getElementById('orientation-toggle');
 
         // 🟣 Kraken Browser Mode
         if (isKraken) {
@@ -184,27 +201,19 @@
             const storedUrl = localStorage.getItem('youtubeVideoUrl') || buildEmbedUrl('F8kQ5TkHFus');
             videoFrame.src = storedUrl;
 
-            // Apply Booty Toggle State on Load
             const storedBooty = localStorage.getItem('bootyToggle') === 'true';
             videoFrame.style.transformOrigin = storedBooty ? 'center 68%' : 'center';
 
-            window.addEventListener('storage', (event) => {
-                if (event.key === 'youtubeVideoUrl') {
-                    videoFrame.src = event.newValue;
-                }
-                if (event.key === 'bootyToggle') {
-                    videoFrame.style.transformOrigin = event.newValue === 'true' ? 'center 68%' : 'center';
-                }
-            });
+            const storedOrientation = localStorage.getItem('orientationToggle') === 'true';
+            videoFrame.className = storedOrientation ? 'video portrait' : 'video landscape';
         } 
         // 🟢 Configuration Browser Mode
         else {
-            const applyButton = document.getElementById('apply-btn');
-            const videoUrlInput = document.getElementById('video-url');
-
-            // Load Booty Toggle State and Apply on Load
             bootyToggle.checked = localStorage.getItem('bootyToggle') === 'true';
+            orientationToggle.checked = localStorage.getItem('orientationToggle') === 'true';
+
             videoFrame.style.transformOrigin = bootyToggle.checked ? 'center 68%' : 'center';
+            videoFrame.className = orientationToggle.checked ? 'video portrait' : 'video landscape';
 
             bootyToggle.addEventListener('change', () => {
                 const isChecked = bootyToggle.checked;
@@ -212,33 +221,15 @@
                 videoFrame.style.transformOrigin = isChecked ? 'center 68%' : 'center';
             });
 
-            applyButton.addEventListener('click', () => {
-                const url = videoUrlInput.value.trim();
-                const { videoId, playlistId } = extractVideoAndPlaylistId(url);
-                const embedUrl = buildEmbedUrl(videoId, playlistId);
-                localStorage.setItem('youtubeVideoUrl', embedUrl);
-                videoFrame.src = embedUrl;
+            orientationToggle.addEventListener('change', () => {
+                const isChecked = orientationToggle.checked;
+                localStorage.setItem('orientationToggle', isChecked);
+                videoFrame.className = isChecked ? 'video portrait' : 'video landscape';
             });
         }
 
-        function extractVideoAndPlaylistId(url) {
-            try {
-                const urlParams = new URLSearchParams(new URL(url).search);
-                return {
-                    videoId: urlParams.get('v') || null,
-                    playlistId: urlParams.get('list') || null
-                };
-            } catch {
-                return { videoId: null, playlistId: null };
-            }
-        }
-
-        function buildEmbedUrl(videoId, playlistId) {
-            let embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&mute=1`;
-            if (playlistId) {
-                embedUrl += `&list=${playlistId}`;
-            }
-            return embedUrl;
+        function buildEmbedUrl(videoId) {
+            return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&mute=1`;
         }
     </script>
 </body>
