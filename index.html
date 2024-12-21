@@ -177,22 +177,34 @@
         const isKraken = searchParams.get('kraken') === '1';
         const bootyToggle = document.getElementById('booty-toggle');
 
+        // 🟣 Kraken Browser Mode
         if (isKraken) {
             document.getElementById('config-controls').classList.add('hidden');
 
             const storedUrl = localStorage.getItem('youtubeVideoUrl') || buildEmbedUrl('F8kQ5TkHFus');
             videoFrame.src = storedUrl;
 
+            // Apply Booty Toggle State on Load
+            const storedBooty = localStorage.getItem('bootyToggle') === 'true';
+            videoFrame.style.transformOrigin = storedBooty ? 'center 68%' : 'center';
+
             window.addEventListener('storage', (event) => {
                 if (event.key === 'youtubeVideoUrl') {
                     videoFrame.src = event.newValue;
                 }
+                if (event.key === 'bootyToggle') {
+                    videoFrame.style.transformOrigin = event.newValue === 'true' ? 'center 68%' : 'center';
+                }
             });
-        } else {
+        } 
+        // 🟢 Configuration Browser Mode
+        else {
             const applyButton = document.getElementById('apply-btn');
             const videoUrlInput = document.getElementById('video-url');
 
+            // Load Booty Toggle State and Apply on Load
             bootyToggle.checked = localStorage.getItem('bootyToggle') === 'true';
+            videoFrame.style.transformOrigin = bootyToggle.checked ? 'center 68%' : 'center';
 
             bootyToggle.addEventListener('change', () => {
                 const isChecked = bootyToggle.checked;
