@@ -42,7 +42,7 @@
         }
 
         .landscape {
-            transform: none;
+            transform: scale(1.78);
         }
 
         /* Configuration Controls Below Video */
@@ -217,8 +217,9 @@
             });
 
             orientationToggle.addEventListener('change', () => {
-                videoFrame.className = orientationToggle.checked ? 'video portrait' : 'video landscape';
-                localStorage.setItem('orientationToggle', orientationToggle.checked);
+                const isChecked = orientationToggle.checked;
+                videoFrame.className = isChecked ? 'video portrait' : 'video landscape';
+                localStorage.setItem('orientationToggle', isChecked);
             });
         }
 
