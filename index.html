@@ -202,12 +202,10 @@
 
             applyButton.addEventListener('click', () => {
                 const url = videoUrlInput.value.trim();
-                if (url) {
-                    const { videoId, playlistId } = extractVideoAndPlaylistId(url);
-                    const embedUrl = buildEmbedUrl(videoId, playlistId);
-                    localStorage.setItem('youtubeVideoUrl', embedUrl);
-                    videoFrame.src = embedUrl;
-                }
+                const { videoId, playlistId } = extractVideoAndPlaylistId(url);
+                const embedUrl = buildEmbedUrl(videoId, playlistId);
+                localStorage.setItem('youtubeVideoUrl', embedUrl);
+                videoFrame.src = embedUrl;
             });
         }
 
