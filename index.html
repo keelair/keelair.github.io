@@ -77,33 +77,53 @@
         const configSection = document.getElementById('config');
         const krakenSection = document.getElementById('kraken');
 
-        applyButton.addEventListener('click', () => {
-            const url = youtubeInput.value.trim();
-            if (url) {
-                const videoId = extractVideoId(url);
+        const searchParams = new URLSearchParams(window.location.search);
+        const isKraken = searchParams.get('kraken') === '1';
+
+        if (isKraken) {
+            // 🟣 Kraken Browser Logic
+            configSection.style.display = 'none';
+            krakenSection.style.display = 'flex';
+
+            window.addEventListener('storage', (event) => {
+                if (event.key === 'youtubeUrl') {
+                    const videoId = extractVideoId(event.newValue);
+                    if (videoId) {
+                        const youtubeEmbedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&playlist=${videoId}&loop=1&controls=0&mute=1`;
+                        videoFrame.setAttribute('src', youtubeEmbedUrl);
+                    }
+                }
+            });
+
+            // Initialize with existing URL if available
+            const initialUrl = localStorage.getItem('youtubeUrl');
+            if (initialUrl) {
+                const videoId = extractVideoId(initialUrl);
                 if (videoId) {
                     const youtubeEmbedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&playlist=${videoId}&loop=1&controls=0&mute=1`;
                     videoFrame.setAttribute('src', youtubeEmbedUrl);
-                    configSection.style.display = 'none';
-                    krakenSection.style.display = 'flex';
-                } else {
-                    alert('Invalid YouTube URL. Please enter a valid playlist or video URL.');
                 }
-            } else {
-                alert('Please enter a YouTube URL.');
             }
-        });
-
-        function extractVideoId(url) {
-            const urlParams = new URLSearchParams(new URL(url).search);
-            return urlParams.get('v') || null;
+        } else {
+            // 🟢 Configuration Browser Logic
+            applyButton.addEventListener('click', () => {
+                const url = youtubeInput.value.trim();
+                if (url) {
+                    localStorage.setItem('youtubeUrl', url);
+                    alert('URL saved. The Kraken screen will update shortly.');
+                } else {
+                    alert('Please enter a valid YouTube URL.');
+                }
+            });
         }
 
-        // Kraken Browser Specific Logic
-        const searchParams = new URLSearchParams(window.location.search);
-        if (searchParams.get('kraken') === '1') {
-            configSection.style.display = 'none';
-            krakenSection.style.display = 'flex';
+        function extractVideoId(url) {
+            try {
+                const urlParams = new URLSearchParams(new URL(url).search);
+                return urlParams.get('v') || null;
+            } catch (e) {
+                return null;
+            }
         }
     </script>
 </body>
