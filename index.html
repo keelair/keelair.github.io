@@ -45,23 +45,10 @@
             transform: scale(1.78);
         }
 
-        /* Configuration Controls Below Video */
         .config-controls {
             margin-top: 30px;
             text-align: center;
             width: 100%;
-        }
-
-        .config-controls h4 {
-            color: white;
-            font-family: Arial, sans-serif;
-            margin-bottom: 5px;
-        }
-
-        .config-controls h3 {
-            color: white;
-            font-family: Arial, sans-serif;
-            margin-bottom: 10px;
         }
 
         .config-controls input[type="text"] {
@@ -85,69 +72,6 @@
         .config-controls button:hover {
             background-color: #005ea2;
         }
-
-        /* Slider Toggle Style */
-        .toggle-container {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .toggle-label {
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 30px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.3s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: 0.3s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #4CAF50;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        .hidden {
-            display: none;
-        }
     </style>
 </head>
 
@@ -163,77 +87,56 @@
         </iframe>
     </div>
 
-    <div class="config-controls" id="config-controls">
-        <h4>Built by Keelair</h4>
+    <div class="config-controls">
         <h3>Enter Video URL:</h3>
-        <input type="text" id="video-url" placeholder="e.g., https://www.youtube.com/watch?v=XXXXXX">
+        <input type="text" id="video-url" placeholder="e.g., https://www.youtube.com/watch?v=XXXXXX&list=YYYYY">
         <br>
         <button id="apply-btn">Submit</button>
-        
-        <div class="toggle-container">
-            <span class="toggle-label">Focus Lower on Video?</span>
-            <label class="toggle-switch">
-                <input type="checkbox" id="booty-toggle">
-                <span class="slider"></span>
-            </label>
-        </div>
-        
-        <div class="toggle-container">
-            <span class="toggle-label">Portrait Mode?</span>
-            <label class="toggle-switch">
-                <input type="checkbox" id="orientation-toggle" checked>
-                <span class="slider"></span>
-            </label>
-        </div>
     </div>
 
     <script>
         const videoFrame = document.getElementById('video');
         const applyButton = document.getElementById('apply-btn');
         const videoUrlInput = document.getElementById('video-url');
-        const bootyToggle = document.getElementById('booty-toggle');
-        const orientationToggle = document.getElementById('orientation-toggle');
-        const isKraken = new URLSearchParams(window.location.search).get('kraken') === '1';
 
-        // 🟣 Kraken Browser Mode
-        if (isKraken) {
-            document.getElementById('config-controls').classList.add('hidden');
-            
-            // Load cached URL on page load
-            const cachedUrl = localStorage.getItem('youtubeVideoUrl') || buildEmbedUrl('F8kQ5TkHFus');
+        // On load, use cached video URL
+        const cachedUrl = localStorage.getItem('youtubeVideoUrl');
+        if (cachedUrl) {
             videoFrame.src = cachedUrl;
-
-            videoFrame.style.transformOrigin = localStorage.getItem('bootyToggle') === 'true' ? 'center 68%' : 'center';
-            videoFrame.className = localStorage.getItem('orientationToggle') === 'true' ? 'video portrait' : 'video landscape';
-        } else {
-            applyButton.addEventListener('click', () => {
-                const url = videoUrlInput.value.trim();
-                videoFrame.src = buildEmbedUrl(url);
-                localStorage.setItem('youtubeVideoUrl', videoFrame.src);
-            });
-
-            bootyToggle.addEventListener('change', () => {
-                videoFrame.style.transformOrigin = bootyToggle.checked ? 'center 68%' : 'center';
-                localStorage.setItem('bootyToggle', bootyToggle.checked);
-            });
-
-            orientationToggle.addEventListener('change', () => {
-                const isChecked = orientationToggle.checked;
-                videoFrame.className = isChecked ? 'video portrait' : 'video landscape';
-                localStorage.setItem('orientationToggle', isChecked);
-            });
         }
 
-        function buildEmbedUrl(url) {
+        // Simplified URL Builder
+        function buildEmbedUrl(videoId, playlistId = null) {
+            return playlistId
+                ? `https://www.youtube.com/embed/${videoId}?autoplay=1&playlist=${playlistId}&loop=1&controls=0&mute=1`
+                : `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&controls=0&mute=1`;
+        }
+
+        // Extract videoId and playlistId from URL
+        function extractVideoAndPlaylistId(url) {
             try {
                 const urlParams = new URLSearchParams(new URL(url).search);
-                const videoId = urlParams.get('v') || url;
-                const youtubeUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&playlist=${videoId}&loop=1&controls=0&mute=1`;
-                videoFrame.setAttribute('src', youtubeUrl)
+                return {
+                    videoId: urlParams.get('v') || null,
+                    playlistId: urlParams.get('list') || null,
+                };
             } catch {
-                return url;
+                return { videoId: null, playlistId: null };
             }
         }
+
+        applyButton.addEventListener('click', () => {
+            const url = videoUrlInput.value.trim();
+            const { videoId, playlistId } = extractVideoAndPlaylistId(url);
+
+            if (videoId) {
+                const embedUrl = buildEmbedUrl(videoId, playlistId);
+                localStorage.setItem('youtubeVideoUrl', embedUrl);
+                videoFrame.src = embedUrl;
+            } else {
+                alert('Invalid YouTube URL. Please try again.');
+            }
+        });
     </script>
 </body>
 </html>
