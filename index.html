@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -77,13 +78,7 @@
 
 <body>
     <div class="container">
-        <iframe 
-            id="video" 
-            class="video"
-            src=""
-            allow="autoplay; fullscreen"
-            frameBorder="0"
-            allowfullscreen>
+        <iframe id="video" class="video" src="" allow="autoplay; fullscreen" frameBorder="0" allowfullscreen>
         </iframe>
     </div>
 
@@ -105,12 +100,15 @@
             videoFrame.src = cachedUrl;
         }
 
-        // Simplified URL Builder
         function buildEmbedUrl(videoId, playlistId = null) {
-            return playlistId
-                ? `https://www.youtube.com/embed/${videoId}?autoplay=1&playlist=${playlistId}&loop=1&controls=0&mute=1`
-                : `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&controls=0&mute=1`;
+            if (playlistId) {
+                // Playlist URL construction
+                return `https://www.youtube.com/embed/${videoId}?autoplay=1&playlist=${playlistId}&loop=1&controls=0&mute=1`;
+            }
+            // Single video URL construction
+            return `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&controls=0&mute=1`;
         }
+
 
         // Extract videoId and playlistId from URL
         function extractVideoAndPlaylistId(url) {
@@ -139,4 +137,5 @@
         });
     </script>
 </body>
+
 </html>
