@@ -13,7 +13,6 @@
             align-items: center;
             flex-direction: column;
             background-color: black;
-            color: white;
             height: 100vh;
         }
 
@@ -46,21 +45,32 @@
             transform: scale(1.78);
         }
 
+        /* Configuration Controls Below Video */
         .config-controls {
             margin-top: 30px;
             text-align: center;
             width: 100%;
         }
 
-        .config-controls input {
+        .config-controls h4 {
+            color: white;
+            font-family: Arial, sans-serif;
+            margin-bottom: 5px;
+        }
+
+        .config-controls h3 {
+            color: white;
+            font-family: Arial, sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .config-controls input[type="text"] {
             width: 300px;
             padding: 8px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 5px;
             text-align: center;
-            background-color: black;
-            color: white;
         }
 
         .config-controls button {
@@ -75,6 +85,69 @@
         .config-controls button:hover {
             background-color: #005ea2;
         }
+
+        /* Slider Toggle Style */
+        .toggle-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-label {
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 
@@ -85,14 +158,15 @@
             class="video"
             src=""
             allow="autoplay; fullscreen"
-            frameborder="0"
+            frameBorder="0"
             allowfullscreen>
         </iframe>
     </div>
 
-    <div class="config-controls">
+    <div class="config-controls" id="config-controls">
+        <h4>Built by Keelair</h4>
         <h3>Enter Video URL:</h3>
-        <input type="text" id="video-url" placeholder="Enter YouTube or Pornhub link">
+        <input type="text" id="video-url" placeholder="e.g., https://www.youtube.com/watch?v=XXXXXX">
         <br>
         <button id="apply-btn">Submit</button>
         
@@ -107,7 +181,7 @@
         <div class="toggle-container">
             <span class="toggle-label">Portrait Mode?</span>
             <label class="toggle-switch">
-                <input type="checkbox" id="orientation-toggle">
+                <input type="checkbox" id="orientation-toggle" checked>
                 <span class="slider"></span>
             </label>
         </div>
@@ -121,44 +195,21 @@
         const orientationToggle = document.getElementById('orientation-toggle');
         const isKraken = new URLSearchParams(window.location.search).get('kraken') === '1';
 
-        function updateVideoSrc(url) {
-            console.log("Setting video src to:", url);
-            videoFrame.src = url;
-        }
-
-        function loadCachedVideo() {
-            const cachedUrl = localStorage.getItem('videoUrl');
-            if (cachedUrl) {
-                updateVideoSrc(cachedUrl);
-            }
-        }
-
         // 🟣 Kraken Browser Mode
         if (isKraken) {
             document.getElementById('config-controls').classList.add('hidden');
-
-            loadCachedVideo(); // Ensure cached video loads on Kraken screen
+            
+            // Load cached URL on page load
+            const cachedUrl = localStorage.getItem('youtubeVideoUrl') || buildEmbedUrl('F8kQ5TkHFus');
+            videoFrame.src = cachedUrl;
 
             videoFrame.style.transformOrigin = localStorage.getItem('bootyToggle') === 'true' ? 'center 68%' : 'center';
             videoFrame.className = localStorage.getItem('orientationToggle') === 'true' ? 'video portrait' : 'video landscape';
-
-            // Listen for storage updates from Config Mode
-            window.addEventListener("storage", (event) => {
-                if (event.key === "videoUrl") {
-                    updateVideoSrc(event.newValue);
-                }
-            });
-
         } else {
             applyButton.addEventListener('click', () => {
                 const url = videoUrlInput.value.trim();
-                const embedUrl = buildEmbedUrl(url);
-                if (embedUrl) {
-                    localStorage.setItem('videoUrl', embedUrl);
-                    updateVideoSrc(embedUrl);
-                } else {
-                    alert('Invalid video URL. Please enter a valid YouTube or Pornhub link.');
-                }
+                videoFrame.src = buildEmbedUrl(url);
+                localStorage.setItem('youtubeVideoUrl', videoFrame.src);
             });
 
             bootyToggle.addEventListener('change', () => {
@@ -175,29 +226,13 @@
 
         function buildEmbedUrl(url) {
             try {
-                const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
-                const pornhubMatch = url.match(/pornhub\.com\/view_video\.php\?viewkey=([^&]+)/);
-                const pornhubPlaylistMatch = url.match(/pornhub\.com\/view_video\.php\?viewkey=([^&]+)&pkey=([^&]+)/);
-
-                if (youtubeMatch) {
-                    return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1&playlist=${youtubeMatch[1]}&loop=1&controls=0&mute=1`;
-                }
-                if (pornhubPlaylistMatch) {
-                    return `https://www.pornhub.com/embed/${pornhubPlaylistMatch[1]}?pkey=${pornhubPlaylistMatch[2]}&autoplay=1&mute=1&controls=0&loop=1`;
-                }
-                if (pornhubMatch) {
-                    return `https://www.pornhub.com/embed/${pornhubMatch[1]}?autoplay=1`;
-                }
-                return null;
+                const urlParams = new URLSearchParams(new URL(url).search);
+                const videoId = urlParams.get('v') || url;
+                return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&mute=1`;
             } catch {
-                return null;
+                return url;
             }
         }
-
-        // Ensure autoplay works on load
-        window.onload = function () {
-            loadCachedVideo();
-        };
     </script>
 </body>
 </html>
