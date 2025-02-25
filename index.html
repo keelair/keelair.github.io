@@ -12,8 +12,8 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            color: white;
             background-color: black;
+            color: white;
             height: 100vh;
         }
 
@@ -52,7 +52,7 @@
             width: 100%;
         }
 
-        .config-controls input[type="text"] {
+        .config-controls input {
             width: 300px;
             padding: 8px;
             margin-bottom: 15px;
@@ -85,7 +85,7 @@
             class="video"
             src=""
             allow="autoplay; fullscreen"
-            frameBorder="0"
+            frameborder="0"
             allowfullscreen>
         </iframe>
     </div>
@@ -142,7 +142,7 @@
             videoFrame.style.transformOrigin = localStorage.getItem('bootyToggle') === 'true' ? 'center 68%' : 'center';
             videoFrame.className = localStorage.getItem('orientationToggle') === 'true' ? 'video portrait' : 'video landscape';
 
-            // Ensure Kraken listens for storage updates from Config Mode
+            // Listen for storage updates from Config Mode
             window.addEventListener("storage", (event) => {
                 if (event.key === "videoUrl") {
                     updateVideoSrc(event.newValue);
