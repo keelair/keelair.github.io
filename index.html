@@ -12,8 +12,8 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            background-color: black;
             color: white;
+            background-color: black;
             height: 100vh;
         }
 
@@ -46,7 +46,6 @@
             transform: scale(1.78);
         }
 
-        /* Configuration Controls */
         .config-controls {
             margin-top: 30px;
             text-align: center;
@@ -120,13 +119,22 @@
         const orientationToggle = document.getElementById('orientation-toggle');
         const isKraken = new URLSearchParams(window.location.search).get('kraken') === '1';
 
+        function updateVideoSrc(url) {
+            console.log("Setting video src to:", url);
+            videoFrame.src = url;
+        }
+
         // 🟣 Kraken Browser Mode
         if (isKraken) {
             document.getElementById('config-controls').classList.add('hidden');
-            
+
             // Load cached URL on page load
-            const cachedUrl = localStorage.getItem('videoUrl') || buildEmbedUrl('https://www.youtube.com/watch?v=F8kQ5TkHFus');
-            videoFrame.src = cachedUrl;
+            const cachedUrl = localStorage.getItem('videoUrl');
+            if (cachedUrl) {
+                updateVideoSrc(cachedUrl);
+            } else {
+                updateVideoSrc(buildEmbedUrl("https://www.youtube.com/watch?v=F8kQ5TkHFus"));
+            }
 
             videoFrame.style.transformOrigin = localStorage.getItem('bootyToggle') === 'true' ? 'center 68%' : 'center';
             videoFrame.className = localStorage.getItem('orientationToggle') === 'true' ? 'video portrait' : 'video landscape';
@@ -136,7 +144,7 @@
                 const embedUrl = buildEmbedUrl(url);
                 if (embedUrl) {
                     localStorage.setItem('videoUrl', embedUrl);
-                    videoFrame.src = embedUrl;
+                    updateVideoSrc(embedUrl);
                 } else {
                     alert('Invalid video URL. Please enter a valid YouTube or Pornhub link.');
                 }
