@@ -171,7 +171,7 @@
         <button id="apply-btn">Submit</button>
         
         <div class="toggle-container">
-            <span class="toggle-label">Looking at booty?</span>
+            <span class="toggle-label">Looking at lower end of screen?</span>
             <label class="toggle-switch">
                 <input type="checkbox" id="booty-toggle">
                 <span class="slider"></span>
@@ -181,7 +181,7 @@
         <div class="toggle-container">
             <span class="toggle-label">Portrait Mode?</span>
             <label class="toggle-switch">
-                <input type="checkbox" id="orientation-toggle" checked>
+                <input type="checkbox" id="orientation-toggle">
                 <span class="slider"></span>
             </label>
         </div>
@@ -228,7 +228,7 @@
             try {
                 const urlParams = new URLSearchParams(new URL(url).search);
                 const videoId = urlParams.get('v') || url;
-                return `https://www.youtube.com/embed/${videoId}?autoplay=1&playlist=${videoId}&loop=1&controls=0&mute=1`;
+                return `https://www.youtube.com/embed/?listType=playlist&list=${videoId}?autoplay=1&playlist=&loop=1&controls=0&mute=1`;
             } catch {
                 return url;
             }
