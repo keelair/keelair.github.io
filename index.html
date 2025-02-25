@@ -45,6 +45,7 @@
             transform: scale(1.78);
         }
 
+        /* Configuration Controls */
         .config-controls {
             margin-top: 30px;
             text-align: center;
@@ -92,37 +93,77 @@
         <input type="text" id="video-url" placeholder="Enter YouTube or Pornhub link">
         <br>
         <button id="apply-btn">Submit</button>
+        
+        <div class="toggle-container">
+            <span class="toggle-label">View lower half of screen?</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="booty-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="toggle-container">
+            <span class="toggle-label">Portrait Mode?</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="orientation-toggle" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
     </div>
 
     <script>
         const videoFrame = document.getElementById('video');
         const applyButton = document.getElementById('apply-btn');
         const videoUrlInput = document.getElementById('video-url');
+        const bootyToggle = document.getElementById('booty-toggle');
+        const orientationToggle = document.getElementById('orientation-toggle');
+        const isKraken = new URLSearchParams(window.location.search).get('kraken') === '1';
 
-        // On load, use cached video URL
-        const cachedUrl = localStorage.getItem('videoUrl');
-        if (cachedUrl) {
+        // 🟣 Kraken Browser Mode
+        if (isKraken) {
+            document.getElementById('config-controls').classList.add('hidden');
+            
+            // Load cached URL on page load
+            const cachedUrl = localStorage.getItem('videoUrl') || buildEmbedUrl('https://www.youtube.com/watch?v=F8kQ5TkHFus');
             videoFrame.src = cachedUrl;
+
+            videoFrame.style.transformOrigin = localStorage.getItem('bootyToggle') === 'true' ? 'center 68%' : 'center';
+            videoFrame.className = localStorage.getItem('orientationToggle') === 'true' ? 'video portrait' : 'video landscape';
+        } else {
+            applyButton.addEventListener('click', () => {
+                const url = videoUrlInput.value.trim();
+                const embedUrl = buildEmbedUrl(url);
+                if (embedUrl) {
+                    localStorage.setItem('videoUrl', embedUrl);
+                    videoFrame.src = embedUrl;
+                } else {
+                    alert('Invalid video URL. Please enter a valid YouTube or Pornhub link.');
+                }
+            });
+
+            bootyToggle.addEventListener('change', () => {
+                videoFrame.style.transformOrigin = bootyToggle.checked ? 'center 68%' : 'center';
+                localStorage.setItem('bootyToggle', bootyToggle.checked);
+            });
+
+            orientationToggle.addEventListener('change', () => {
+                const isChecked = orientationToggle.checked;
+                videoFrame.className = isChecked ? 'video portrait' : 'video landscape';
+                localStorage.setItem('orientationToggle', isChecked);
+            });
         }
 
-        applyButton.addEventListener('click', () => {
-            const url = videoUrlInput.value.trim();
-            const embedUrl = getEmbedUrl(url);
-            if (embedUrl) {
-                localStorage.setItem('videoUrl', embedUrl);
-                videoFrame.src = embedUrl;
-            } else {
-                alert('Invalid video URL. Please enter a valid YouTube or Pornhub link.');
-            }
-        });
-
-        function getEmbedUrl(url) {
+        function buildEmbedUrl(url) {
             try {
                 const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
                 const pornhubMatch = url.match(/pornhub\.com\/view_video\.php\?viewkey=([^&]+)/);
+                const pornhubPlaylistMatch = url.match(/pornhub\.com\/view_video\.php\?viewkey=([^&]+)&pkey=([^&]+)/);
 
                 if (youtubeMatch) {
-                    return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1&loop=1&controls=0&mute=1`;
+                    return `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1&playlist=${youtubeMatch[1]}&loop=1&controls=0&mute=1`;
+                }
+                if (pornhubPlaylistMatch) {
+                    return `https://www.pornhub.com/embed/${pornhubPlaylistMatch[1]}?pkey=${pornhubPlaylistMatch[2]}`;
                 }
                 if (pornhubMatch) {
                     return `https://www.pornhub.com/embed/${pornhubMatch[1]}`;
