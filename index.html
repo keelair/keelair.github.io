@@ -126,20 +126,29 @@
             videoFrame.src = url;
         }
 
+        function loadCachedVideo() {
+            const cachedUrl = localStorage.getItem('videoUrl');
+            if (cachedUrl) {
+                updateVideoSrc(cachedUrl);
+            }
+        }
+
         // 🟣 Kraken Browser Mode
         if (isKraken) {
             document.getElementById('config-controls').classList.add('hidden');
 
-            // Load cached URL on page load
-            const cachedUrl = localStorage.getItem('videoUrl');
-            if (cachedUrl) {
-                updateVideoSrc(cachedUrl);
-            } else {
-                updateVideoSrc(buildEmbedUrl("https://www.youtube.com/watch?v=F8kQ5TkHFus"));
-            }
+            loadCachedVideo(); // Ensure cached video loads on Kraken screen
 
             videoFrame.style.transformOrigin = localStorage.getItem('bootyToggle') === 'true' ? 'center 68%' : 'center';
             videoFrame.className = localStorage.getItem('orientationToggle') === 'true' ? 'video portrait' : 'video landscape';
+
+            // Ensure Kraken listens for storage updates from Config Mode
+            window.addEventListener("storage", (event) => {
+                if (event.key === "videoUrl") {
+                    updateVideoSrc(event.newValue);
+                }
+            });
+
         } else {
             applyButton.addEventListener('click', () => {
                 const url = videoUrlInput.value.trim();
@@ -187,10 +196,7 @@
 
         // Ensure autoplay works on load
         window.onload = function () {
-            const cachedUrl = localStorage.getItem('videoUrl');
-            if (cachedUrl) {
-                updateVideoSrc(cachedUrl);
-            }
+            loadCachedVideo();
         };
     </script>
 </body>
